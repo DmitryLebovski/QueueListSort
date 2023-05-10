@@ -1,84 +1,115 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace bsbo_011215_22
+﻿namespace bsbo_011215_22
 {
+    // Линейная структура "Очередь"
     public class Queue
     {
-        private List<int> _list;
+        private int N;
+        private int[] list; // массив данных
+        private int next; // указатель на начало
 
-        public Queue() {
-            _list = new List<int>();
+        public Queue(int n)
+        {
+            list = new int[n];
+            next = 0;
+            N = n;
         }
 
-        // Получение длины очереди
-        public int Count {
-            get { return _list.Count; }
+        // Проверка очереди на полноту
+        public bool IsFull()
+        {
+            return next == N;
         }
 
         // Проверка очереди на пустоту
-        public bool isEmpty()
+        public bool IsEmpty()
         {
-            return Count == 0;
+            return next == 0;
         }
 
-        // Добавление элемента в очередь
-        public void Enqueue(int item)
+        // Добавление нового элемента в очередь
+        public void Add(int value)
         {
-            _list.Add(item);
+            if (IsFull())
+            {
+                Console.WriteLine("\nОчередь заполнена\n\n");
+                return;
+            }
+
+            list[next++] = value;
         }
 
         // Удаление элемента из очереди
-        public int Dequeue()
-        {
-           if (isEmpty())
+        public void Delete()
+        {   
+            for (int i = 0; i < next && i < N - 1; i++)
             {
-                throw new InvalidOperationException("Queue is empty");
+                list[i] = list[i + 1];
             }
-
-            int item = _list[0];
-            _list.RemoveAt(0);
-            return item;
+            next--;
+            list[next] = int.MaxValue;
         }
-        
-        // Вывод элемента в начале очереди без его удаления
-        public int Peek() {
-            if (isEmpty())
-            {
-                throw new InvalidOperationException("Queue is empty");
-            }
-            
-            return _list[0];
+
+        // Получение первого элемента
+        public int Top()
+        {
+            return list[0];
+        }
+
+        // Получение размера очереди
+        public int Size()
+        {
+            return next;
         }
 
         // Перегрузка оператора индексации [] 
         public int this[int index]
         {
             get {
-                if (index < 0 || index >= Count) { 
+                if (index < 0 || index >= Size()) { 
                     throw new ArgumentOutOfRangeException("index");
                 }
-                return _list[index % Count];
+                return list[index];
             }
 
             set {
-                if (index < 0 || index >= Count)
+                if (index < 0 || index >= Size())
                 {
                     throw new ArgumentOutOfRangeException("index");
                 }
-                _list[index % Count] = value;
+                list[index] = value;
+            }   
+        }
+
+        // Вывод очереди в консоль
+        public void Print()
+        {
+            for (int i = 0; i < next; i++) {
+                Console.Write($"{list[i].ToString()} ");
             }
+            Console.WriteLine();
         }
 
 
-        // Вывод списка в консоль
-        public void Print()
+        // Реализации алгоритма сортировки очереди на массивах
+        public void QueueSort()
         {
-            foreach (int item in _list)
+            
+            bool swapFlag = false;
+            for (int i = 0; i < N; i++)
             {
-                Console.Write($"{item.ToString()} ");
+                swapFlag = false;
+                for (int j = 0; j < N - i - 1; j++)
+                {
+                    if (list[j] > list[j + 1])
+                    {
+                        (list[j], list[j + 1]) = (list[j + 1], list[j]);
+                        swapFlag = true;
+                    }
+                }
+
+                if (!swapFlag)
+                    break;
             }
-            Console.WriteLine();
         }
     }
 }
