@@ -5,28 +5,28 @@
     {
         private int N = 5; // размер очереди
         private int[] list; // массив данных
-        private int next; // указатель на начало
+        private int start; // указатель на начало
 
         public Queue()
         {
             list = new int[N];
-            next = 0;
+            start = 0;
         }
 
         // Проверка очереди на полноту
         public bool IsFull()
         {
-            return next == N;
+            return start == N;
         }
 
         // Проверка очереди на пустоту
         public bool IsEmpty()
         {
-            return next == 0;
+            return start == 0;
         }
 
         // Добавление нового элемента в очередь
-        public void Add(int value)
+        public void Enqueue(int value)
         {
             if (IsFull())
             {
@@ -34,19 +34,19 @@
                 return;
             }
 
-            list[next++] = value;
+            list[start++] = value;
         }
 
         // Удаление элемента из очереди
-        public int Delete()
+        public int Dequeue()
         {   
-            for (int i = 0; i < next && i < N - 1; i++)
+            for (int i = 0; i < start && i < N - 1; i++)
             {
                 list[i] = list[i + 1];
             }
-            next--;
-            int rmpD = list[next];
-            list[next] = int.MaxValue;
+            start--;
+            int rmpD = list[start];
+            list[start] = int.MaxValue;
             return rmpD;
         }
 
@@ -59,7 +59,7 @@
         // Получение размера очереди
         public int Size()
         {
-            return next;
+            return start;
         }
 
         // Получение значения элемента очереди
@@ -72,23 +72,23 @@
 
             for (int i = 0; i < index; i++)
             {
-                // Поэтапно удаляем верхний элемент очереди, помещая его в другую очередь,
-                // пока "на поверхности" не окажется нужный нам элемент. Если в процессе
-                // очередь внезапно "закончится", его следует вернуть в исходное состояние.
-                tmp.Add(this.Delete());
+                // Удаляется верхний элемент очереди, помещается в другую очередь,
+                // пока верхним не окажется нужный элемент. Если в процессе
+                // очередь закончится, очередь возвращается в исходное состояние
+                tmp.Enqueue(Dequeue());
                 if (IsEmpty())
                 {
                     while (!tmp.IsEmpty())  // Восстановление очереди к исходному состоянию
-                        this.Add(tmp.Delete());
+                        Enqueue(tmp.Dequeue());
                     throw new InvalidOperationException("Indexing failed: out of range.");
                 }
             }
+                
+            int result = list[start]; // Сохранение значения перед восстановлением очереди
 
-            int result = list[next]; // Сохранение значения перед восстановлением очереди
-
-            // Восстановление очереди к исходному состоянию.
+            // Восстановление очереди к исходному состоянию
             while (!tmp.IsEmpty())
-                this.Add(tmp.Delete());
+                Enqueue(tmp.Dequeue());
 
             return result;
         }
@@ -98,23 +98,23 @@
         public void Set(int index, int value, Queue tmp)
         {
             if (IsEmpty())
-                throw new InvalidOperationException("Cannot index: Stack is empty.");
+                throw new InvalidOperationException("Cannot index: Queue is empty.");
 
             for (int i = 0; i < index; i++)
             {
-                tmp.Add(this.Delete());
-                if (this.IsEmpty())
+                tmp.Enqueue(Dequeue());
+                if (IsEmpty())
                 {
                     while (!tmp.IsEmpty())
-                        this.Add(tmp.Delete());
+                        Enqueue(tmp.Dequeue());
                     throw new InvalidOperationException("Indexing failed: out of range.");
                 }
             }
 
-            list[next] = value; // подстановка значения
+            list[start] = value; // подстановка значения
 
             while (!tmp.IsEmpty())
-                this.Add(tmp.Delete());
+                Enqueue(tmp.Dequeue());
         }
 
         // Перегрузка оператора индексации []
@@ -127,21 +127,29 @@
         // Вывод очереди в консоль
         public void Print()
         {
-            for (int i = 0; i < next; i++) {
+            for (int i = 0; i < start; i++) {
                 Console.Write($"{list[i].ToString()} ");
             }
             Console.WriteLine();
         }
 
 
-        // Реализации алгоритма сортировки очереди на массивах
+        /* Описание  алгоритма пузырьковой сортировки:*
+        1. Итерация по очереди: Алгоритм начинает сравнивать пары соседних элементов, начиная с первой пары(индексы 0 и 1) и до последней пары(индексы N-2 и N-1), где N - размер очереди;
+        2. Сравнение и перестановка: Для каждой пары элементов сравниваются их значения.Если значение текущего элемента больше значения следующего элемента, они меняются местами;
+        3. Подъём наибольшего элемента: В результате первой итерации самый большой элемент "всплывает" к концу очереди (индекс N-1);
+        4. Повторение итераций: Процесс повторяется для всех оставшихся элементов, и каждый раз самый большой элемент "всплывает" на одну позицию ближе к концу очереди;
+        5. Условие завершения: После каждой итерации проверяется, была ли выполнена перестановка элементов. Если на текущей итерации не было ни одной перестановки, значит очередь уже отсортирована, и сортировка завершается;
+        6. Повторение цикла: Если были произведены перестановки, алгоритм повторяет весь процесс итераций до тех пор, пока не будет достигнуто условие завершения(swapFlag = false) */
+
+        // Реализации алгоритма пузырьковой сортировки
         public void QueueSort()
-        {
-            
-            bool swapFlag = false;
+        { 
+            bool swapFlag = false; // переменная-флаг, по которой отслеживается факт выполнения перестановки на итерации
             for (int i = 0; i < N; i++)
             {
-                swapFlag = false;
+                swapFlag = false; // сбрасывание флага перестановки
+
                 for (int j = 0; j < N - i - 1; j++)
                 {
                     if (list[j] > list[j + 1])
@@ -150,7 +158,7 @@
                         swapFlag = true;
                     }
                 }
-
+                // Если на итерации не было перестановок, значит очередь отсортирована, поэтому можно закончить работу цикла
                 if (!swapFlag)
                     break;
             }
