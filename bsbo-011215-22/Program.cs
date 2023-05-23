@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using bsbo_011215_22;
+﻿using bsbo_011215_22;
 
 internal class Application
 {
     static public int N_OP = 0;
-    static public int n = 5; // размер сортируемого стэка.
+    static public int n = 5; // размер сортируемой очереди
 
     static void Main(string[] args)
     {
@@ -19,11 +17,6 @@ internal class Application
         }
 
         Console.Write("Очередь до сортировки: ");
-        queue.Print();
-
-        Console.WriteLine($"Удален элемент: {queue.Dequeue()} ");
-
-        Console.Write("Промежуточный вывод: ");
         queue.Print();
 
         /* Описание  алгоритма пузырьковой сортировки:

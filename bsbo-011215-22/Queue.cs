@@ -19,6 +19,12 @@
             Capacity = N;
         }
 
+        // Проверка на пустоту
+        public bool isEmpty()
+        {
+            return Count == 0;
+        }
+
         // Добавление нового элемента в очередь
         public void Enqueue(int item)
         {
@@ -32,8 +38,8 @@
         // Удаление элемента из очереди
         public int Dequeue()
         {
-            if (Count == 0)
-                throw new InvalidOperationException("Queue is empty.");
+            if (isEmpty())
+                throw new InvalidOperationException("Cannot index: Queue is empty.");
 
             //После удаления элемента из очереди,
             //индекс head сдвигается вперед к следующему элементу, а Count (размер текущей очереди) уменьшается на 1
@@ -104,6 +110,7 @@
                 Console.Write($"{elem} ");
                 Enqueue(elem);
             }
+
             Console.WriteLine();
         }
     }
