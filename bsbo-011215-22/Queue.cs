@@ -1,104 +1,140 @@
 ﻿namespace bsbo_011215_22
 {
-    // Линейная структура "Очередь"
     public class Queue
     {
-        private int N = Application.n; 
-        private int[] list; // массив чисел
-        private int head; // начало очереди
-        private int tail; // хвост очереди
-        public int Count { get; private set; } // размер текущей очереди
-        public int Capacity { get; private set; } // изначальный размер очереди
+        public int Capacity;
+        int[] _list; // Массив чисел
+        public int Count = 0; // Размер текущей очереди (1)
 
         public Queue()
         {
-            list = new int[N];
-            head = 0;
-            tail = 0;
-            Count = 0;
-            Capacity = N;
+            Capacity = Application.n; // 2
+            _list = new int[Application.n]; // 4
+            Application.N_OP += 7;
         }
 
-        // Проверка на пустоту
+        // Проверка на пустоту очереди
         public bool isEmpty()
         {
-            return Count == 0;
+            Application.N_OP += 1;
+            return Count == 0; // 1
         }
 
-        // Добавление нового элемента в очередь
+        // Добавление элемента в очередь
         public void Enqueue(int item)
         {
-            //После добавления элемента в очередь,
-            //индекс tail сдвигается вперед(вправо) к следующему свободному элементу в массиве, а Count (размер текущей очереди) увеличится на 1
-            list[tail] = item;
-            tail = (tail + 1) % Capacity;
-            Count++;
+            Application.N_OP += 1;
+            // Если массив заполнен, а нужно добавить еще элементы - размер массива "увеличивается" 
+            if (Count == Capacity) // 1
+            {
+                Array.Resize(ref _list, Capacity * 2); // 3 + 13 = 16 
+                Capacity *= 2; // 2
+                Application.N_OP += 18;
+            }
+            _list[Count] = item; // 3
+            Count++; // 1
+            Application.N_OP += 4;
         }
 
         // Удаление элемента из очереди
         public int Dequeue()
         {
-            if (isEmpty())
+            if (isEmpty()) { 
                 throw new InvalidOperationException("Cannot index: Queue is empty.");
+            }// 1
+            Application.N_OP += 1;
 
-            //После удаления элемента из очереди,
-            //индекс head сдвигается вперед к следующему элементу, а Count (размер текущей очереди) уменьшается на 1
-            int item = list[head];
-            list[head] = 0; // освобождаем как пустой элемент
-            head = (head + 1) % Capacity;
-            Count--;
-            return item;
+
+            Application.N_OP += 38;
+            int res = _list[0]; // 3
+            Array.Copy(_list, 1, _list, 0, Capacity - 1); // 6 + 
+            Count--; // 1
+            return res; // 1
         }
 
         // Получение значения элемента очереди
         public int Get(int index)
         {
-            if (index < 0 || index >= Count)
+            Application.N_OP += 3;
+            if (index < 0 || index >= Count) {
                 throw new IndexOutOfRangeException();
+            }
 
             // Переменная для сохранения нужного элемента
-            int item = 0;
+            int item = 0; Application.N_OP += 1;
 
+            Application.N_OP += 1; 
             // Извлекаем элементы из очереди и восстанавливаем после получения нужного элемента
             for (int i = 0; i < Count; i++)
             {
-                int current = Dequeue();
+                Application.N_OP += 2;
+                int current = Dequeue();// 2
+
+                Application.N_OP += 1;
+                //1
                 if (i == index)
                 {
-                    item = current; // Сохраняем нужный элемент
+                    // Сохраняем нужный элемент
+                    item = current; // 1
+                    Application.N_OP += 1;
                 }
-                Enqueue(current);
-            }
 
+                Application.N_OP += 2;
+                Enqueue(current); // 2
+
+                Application.N_OP += 2;
+            }
             return item;
         }
 
         // Установка значения элемента очереди по индексу
         // Та же логика, что и в Get(), но вместо возврата значения элемента ему устанавливается новое значение.
-        public void Set(int index, int value)
+        public void Set(int index, int value) 
         {
+            //3
+            Application.N_OP += 3;
             if (index < 0 || index >= Count)
                 throw new IndexOutOfRangeException();
 
+            Application.N_OP += 1;
             // Извлекаем элементы из очереди и восстанавливаем после замены нужного элемента
             for (int i = 0; i < Count; i++)
             {
-                int current = Dequeue();
+                Application.N_OP += 2;
+                int current = Dequeue(); // 2
+
+                Application.N_OP += 1;
                 if (i == index)
                 {
-                    Enqueue(value); // Заменяем элемент на нужном индексе
+                    // Заменяем элемент на нужном индексе
+                    Enqueue(value); // 2
+                    Application.N_OP += 2;
                 }
                 else
                 {
-                    Enqueue(current); // Восстанавливаем остальные элементы
+                    // Восстанавливаем остальные элементы
+                    Enqueue(current); // 2
+                    Application.N_OP += 2;
                 }
+
+                Application.N_OP += 2;
             }
         }
 
+        // Перегрузка []
         public int this[int index]
         {
-            get => Get(index);
-            set => Set(index, value);
+            get // 2
+            {
+                Application.N_OP += 2;
+                return Get(index); 
+            }
+
+            set // 3
+            {
+                Application.N_OP += 3;
+                Set(index, value); 
+            }
         }
 
         // Вывод очереди в консоль
@@ -110,7 +146,6 @@
                 Console.Write($"{elem} ");
                 Enqueue(elem);
             }
-
             Console.WriteLine();
         }
     }
